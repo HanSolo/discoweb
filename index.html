@@ -8,239 +8,141 @@
     font-family     : 'Helvetica', sans-serif;
     background-color: rgb(30, 30, 30);
     color           : rgb(185, 185, 185);
-    padding         : 30px 0;
     font-weight     : 300;
-}
+	}
 
-.container {
-    margin   : 0 auto;
-    display  : block;
-    max-width: 1116px;
-}
-.container > *:not(.tab-wrap) {
-    padding: 0 80px;
-}
+	.container {
+			margin   : 0 auto;
+			display  : block;
+	}
 
-h1, h2 {
-    margin     : 0;
-    color      : #444;
-    text-align : center;
-    font-weight: 400;
-}
+	.checkbox {
+		flex: 25;
+	}
 
-h2 {
-    font-size    : 1em;
-    margin-bottom: 30px;
-}
+	.label {
+			text-align : center;
+			font-family: 'Helvetica', sans-serif;
+			font-size  : 12px;
+			font-weight: regular;
+			min-width  : 110px;
+			max-width  : 110px;
+			flex       : 25;
+			text-align : left;
+			line-height: 20px;
+	}
 
-h3 {
-    font-weight: 400;
-}
+	.dropdown {
+			padding         : 2px;
+			display         : block;
+			background-color: transparent;
+			font-size       : 12px;
+			color           : rgb(185, 185, 185);
+			border-radius   : 5px;
+			min-width       : 120px;
+			max-width       : 120px;
+			flex            : 75;
+	}
+	.dropdown:focus {
+			border-color : white;
+			border-radius: 0px;
+			box-shadow   : none;
+	}
 
-p {
-    line-height  : 1.6;
-    margin-bottom: 20px;
-}
+	.filename-label {
+		text-align   : center;
+			font-family  : 'Helvetica', sans-serif;
+			font-size    : 10px;
+			font-weight  : regular;
+			flex         : 100;
+			max-width    : 230px;
+			text-align   : center;
+			color        : white;
+	}
 
+	.button {
+			margin-top   : 10px;
+			padding      : 2px 10px 2px 10px;
+			border-radius: 5px;
+			border       : 0;
+			font-size    : 12px;
+			flex         : 100;
+	}
+	.button:armed {
+		background: red;
+	}
 
-.checkbox {
-	flex: 25;
-}
+	.vbox {
+			display: -webkit-flex;
+			display: -ms-flexbox;
+			display: flex;
 
-.label {
-    text-align   : center;
-    font-family  : 'Helvetica', sans-serif;
-    font-size    : 13px;
-    font-weight  : regular;
-    min-width    : 130px;
-    max-width    : 130px;
-    flex         : 25;
-    text-align   : left;
-}
+			/*Align children vetically*/
+			-webkit-flex-direction: column;
+			-ms-flex-direction: column;
+			flex-direction: column;
 
-.dropdown {
-    padding         : 2px;
-    display         : block;
-    background-color: transparent;
-    color           : rgb(185, 185, 185);
-    border-radius   : 5px;
-    min-width       : 150px;
-    max-width       : 150px;
-    flex            : 75;
-}
-.dropdown:focus {
-    border-color : white;
-    border-radius: 0px;
-    box-shadow   : none;
-}
+			-webkit-align-content: flex-start;
+			-ms-flex-line-pack: start;
+			align-content: flex-start;
+	}
+	.hbox {
+			display: -webkit-flex;
+			display: -ms-flexbox;
+			display: flex;
 
-.filename-label {
-	text-align   : center;
-    font-family  : 'Helvetica', sans-serif;
-    font-size    : 10px;
-    font-weight  : regular;
-    flex         : 100;
-    max-width    : 280px;
-    text-align   : center;
-    color        : white;
-}
+			/*Align children horizontally*/
+			-webkit-flex-direction: row;
+			-ms-flex-direction: row;
+			flex-direction: row;
 
-.button {
-    margin-top   : 20px;
-    padding      : 2px 10px 2px 10px;
-    border-radius: 5px;
-    border       : 0;
-}
-.button:armed {
-	background: red;
-}
-
-
-
-/* Drill down JDK Selector */
-.vbox {
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-
-    /*Align children vetically*/
-    -webkit-flex-direction: column;
-    -ms-flex-direction: column;
-    flex-direction: column;
-
-    -webkit-align-content: flex-start;
-    -ms-flex-line-pack: start;
-    align-content: flex-start;
-}
-/*Stack child items horizontally*/
-.hbox {
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-
-    /*Align children horizontally*/
-    -webkit-flex-direction: row;
-    -ms-flex-direction: row;
-    flex-direction: row;
-
-    -webkit-align-content: flex-start;
-    -ms-flex-line-pack: start;
-    align-content: flex-start;
-}
-/*Stretch item along parent's main-axis*/
-.flex {
-    -webkit-flex: 1;
-    -ms-flex: 1;
-    flex: 1;
-}
-/*Stretch item along parent's cross-axis*/
-.stretch {
-    align-self: stretch;
-}
-
-/*Stack child items to the main-axis start*/
-.main-start {
-    -webkit-justify-content: flex-start;
-    -ms-flex-pack: flex-start;
-    justify-content: flex-start;
-}
-/*Stack child items to the cross-axis start*/
-.cross-start {
-    -webkit-align-items: flex-start;
-    -ms-flex-align: flex-start;
-    align-items: flex-start;
-    
-    -webkit-align-content: flex-start;
-    -ms-flex-line-pack: start;
-    align-content: flex-start;
-}
-/*Stack child items to the main-axis center*/
-.main-center {
-    -webkit-justify-content: center;
-    -ms-flex-pack: center;
-    justify-content: center;
-}
-/*Stack child items to the cross-axis center*/
-.cross-center {
-    -webkit-align-items: center;
-    -ms-flex-align: center;
-    align-items: center;
-    
-    -webkit-align-content: center;
-    -ms-flex-line-pack: center;
-    align-content: center;
-}
-/*Stack child items to the main-axis end.*/
-.main-end {
-    -webkit-justify-content: flex-end;
-    -ms-flex-pack: end;
-    justify-content: flex-end;
-}
-/*Stack child items to the cross-axis end.*/
-.cross-end {
-    -webkit-align-items: flex-end;
-    -ms-flex-align: flex-end;
-    align-items: flex-end;
-    
-    -webkit-align-content: flex-end;
-    -ms-flex-line-pack: end;
-    align-content: flex-end;
-}
-/*Stretch child items along the cross-axis*/
-.cross-stretch {
-    -webkit-align-items: stretch;
-    -ms-flex-align: stretch;
-    align-items: stretch;
-    
-    -webkit-align-content: stretch;
-    -ms-flex-line-pack: stretch;
-    align-content: stretch;
-}
-
-/*Wrap items to next line on main-axis*/
-.wrap {
-    -webkit-flex-wrap: wrap;
-    -ms-flex-wrap: wrap;
-    flex-wrap: wrap;
-}
+			-webkit-align-content: flex-start;
+			-ms-flex-line-pack: start;
+			align-content: flex-start;
+	}
+	.flex {
+			-webkit-flex: 1;
+			-ms-flex: 1;
+			flex: 1;
+	}
 	</style>
 </head>
 <body>
 	<div class="container">
 		<div class="vbox">
-			<div class="hbox" style="padding:5px;">
+			<div class="hbox" style="padding:3px;">
 				<label id="javafxBundledLabel" class="label">JavaFX bundled</label>
 				<input id="javafxBundledCheckBox" type="checkbox" onchange="update()">
 			</div>
-			<div class="hbox" style="padding:5px;">
+			<div class="hbox" style="padding:3px;">
 				<label id="majorVersionLabel" class="label">Major version:</label>
 				<select id="majorVersionDropDown" name="majorVersion" class="dropdown" onchange="selectMajorVersion()"></select>
 			</div>
-			<div class="hbox" style="padding:5px;">
+			<div class="hbox" style="padding:3px;">
 				<label id="versionNumberLabel" class="label">Version number:</label>
 				<select id="versionNumberDropDown" name="versionNumber" class="dropdown" onchange="selectVersionNumber()"></select>
 			</div>
-			<div class="hbox" style="padding:5px;">
+			<div class="hbox" style="padding:3px;">
 				<label id="distributionLabel" class="label">Distribution:</label>
 				<select id="distributionDropDown" name="distribution" class="dropdown" onchange="selectDistribution()"></select>
 			</div>
-			<div class="hbox" style="padding:5px;">
+			<div class="hbox" style="padding:3px;">
 				<label id="operatingSystemLabel" class="label">Operating system:</label>
 				<select id="operatingSystemDropDown" name="operatingSystem" class="dropdown" onchange="selectOperatingSystem()"></select>
 			</div>
-			<div class="hbox" style="padding:5px;">
+			<div class="hbox" style="padding:3px;">
 				<label id="libcTypeLabel" class="label">Libc type:</label>
 				<select id="libcTypeDropDown" name="libcType" class="dropdown" onchange="selectLibcType()"></select>
 			</div>
-			<div class="hbox" style="padding:5px;">
+			<div class="hbox" style="padding:3px;">
 				<label id="architectureLabel" class="label">Architecture:</label>
 				<select id="architectureDropDown" name="architecture" class="dropdown" onchange="selectArchitecture()"></select>
 			</div>
-			<div class="hbox" style="padding:5px;">
+			<div class="hbox" style="padding:3px;">
 				<label id="archiveTypeLabel" class="label">Archive type:</label>
 				<select id="archiveTypeDropDown" name="archiveType" class="dropdown" onchange="selectArchiveType()"></select>
 			</div>
-			<div class="hbox" style="padding:5px;">
+			<div class="hbox" style="padding:3px;">
 				<label id="filenameLabel" class="filename-label">-</label>
 			</div>
 			<div>
@@ -395,7 +297,6 @@ p {
 				operatingSystemDropDown.add(option);
 			}
 			distributionDropDown.style.display = 'block';
-			distributionDropDown.selectedIndex = 0;
 			selectOperatingSystem();
     }
     
