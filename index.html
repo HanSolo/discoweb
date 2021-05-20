@@ -197,6 +197,9 @@
 
       let versions = selectedMajorVersion.versions;
       if (!selectedMajorVersion.early_access_only) {
+        versions = versions.filter(function(version) {
+					return version.indexOf('-ea') == -1;
+				});
         for (let i = 0 ; i < versions.length ; i++) {
           versions[i] = normalizeJavaVersion(versions[i]);
         }
