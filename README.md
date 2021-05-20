@@ -1,5 +1,5 @@
 # DiscoWeb
-A html snippet that one can use to add to your Blogger sidebar. 
+A html snippet that can be used at your Blogger sidebar. 
 
 ## Screenshot
 ![Screenshot](https://raw.githubusercontent.com/HanSolo/discoweb/blogger/screenshot.png)
