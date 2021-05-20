@@ -151,25 +151,25 @@
 	</div>
 	
 	<script>
-	  const baseUrl = 'https://api.foojay.io';
-	  const scope   = 'discovery_scope_id=public&discovery_scope_id=build_of_openjdk';
-	  
-	  var   majorVersions = [];
-	  var   selectedPkgs  = [];
-	  var   selectedPkg   = null;
-	  var   downloadUri   = null;
-	  var   javafxBundled;
-		var   selectedMajorVersion;
-		var   selectedVersionNumber;
-		var   selectedDistribution;
-		var   selectedOperatingSystem;
-		var   selectedLibcType;
-		var   selectedArchitecture;
-		var   selectedArchiveType;
-	  
-	  init();
-	  
-	
+    const baseUrl = 'https://api.foojay.io';
+    const scope   = 'discovery_scope_id=public&discovery_scope_id=build_of_openjdk';
+    
+    var   majorVersions = [];
+    var   selectedPkgs  = [];
+    var   selectedPkg   = null;
+    var   downloadUri   = null;
+    var   javafxBundled;
+    var   selectedMajorVersion;
+    var   selectedVersionNumber;
+    var   selectedDistribution;
+    var   selectedOperatingSystem;
+    var   selectedLibcType;
+    var   selectedArchitecture;
+    var   selectedArchiveType;
+    
+    init();
+    
+  
     // ******************** Methods **********************************************
     async function init() {
       let   json     = await getMaintainedMajorVersions();
@@ -178,45 +178,48 @@
 
       for (let i = 0 ; i < data.length ; i++) {
         majorVersions.push(data[i]);
-				let option   = document.createElement('option');
-				option.id    = data[i].major_version;
-				option.text  = data[i].major_version;
-				option.value = data[i].major_version;
-				majorVersionDropDown.add(option);
-			}
+        let option   = document.createElement('option');
+        option.id    = data[i].major_version;
+        option.text  = data[i].major_version;
+        option.value = data[i].major_version;
+        majorVersionDropDown.add(option);
+      }
       majorVersionDropDown.style.display = 'block';
       majorVersionDropDown.selectedIndex = 0;
       selectMajorVersion();
     }
     
     function selectJavaFXBundled() {
-			let javafxBundledCheckBox = document.getElementById('javafxBundledCheckBox');
-			javafxBundled = javafxBundledCheckBox.checked;
+      let javafxBundledCheckBox = document.getElementById('javafxBundledCheckBox');
+      javafxBundled = javafxBundledCheckBox.checked;
     }
     
     function selectMajorVersion() {
-    	let majorVersionDropDown = document.getElementById('majorVersionDropDown');
-    	selectedMajorVersion = majorVersions[majorVersionDropDown.selectedIndex];
+      let majorVersionDropDown = document.getElementById('majorVersionDropDown');
+      selectedMajorVersion = majorVersions[majorVersionDropDown.selectedIndex];
 
-    	let versions = selectedMajorVersion.versions;
-    	if (!selectedMajorVersion.early_access_only) {
-    		for (let i = 0 ; i < versions.length ; i++) {
-    	    versions[i] = normalizeJavaVersion(versions[i]);
-    	  }
-    	}
-    	versions = versions.filter(uniqueOnly);
+      let versions = selectedMajorVersion.versions;
+      if (!selectedMajorVersion.early_access_only) {
+        versions = versions.filter(function(version) {
+					return version.indexOf('-ea') == -1;
+				});
+        for (let i = 0 ; i < versions.length ; i++) {
+          versions[i] = normalizeJavaVersion(versions[i]);
+        }
+      }
+      versions = versions.filter(uniqueOnly);
 
-		  removeDropdownEntries(versionNumberDropDown);
-    	for (let i = 0 ; i < versions.length ; i++) {
-    		let option   = document.createElement('option');
-				option.id    = versions[i];
-				option.text  = versions[i];
-				option.value = versions[i];
-				versionNumberDropDown.add(option);
-    	}
-    	versionNumberDropDown.style.display = 'block';
-    	versionNumberDropDown.selectedIndex = 0;
-    	selectVersionNumber();
+      removeDropdownEntries(versionNumberDropDown);
+      for (let i = 0 ; i < versions.length ; i++) {
+        let option   = document.createElement('option');
+        option.id    = versions[i];
+        option.text  = versions[i];
+        option.value = versions[i];
+        versionNumberDropDown.add(option);
+      }
+      versionNumberDropDown.style.display = 'block';
+      versionNumberDropDown.selectedIndex = 0;
+      selectVersionNumber();
     }
     
     async function selectVersionNumber() {
@@ -224,144 +227,144 @@
       selectedVersionNumber = versionNumberDropDown.value;
       
       let   url      = baseUrl + '/disco/v2.0/distributions/versions/' + selectedVersionNumber + '?' + scope;
-			let   json     = await getPackages(url);
-			const response = JSON.parse(json);
-			const data     = response.result;
+      let   json     = await getPackages(url);
+      const response = JSON.parse(json);
+      const data     = response.result;
 
-			let distrosForSelectedVersion = [];
-			if (data.length > 0) {
-				for (let i = 0 ; i < data.length ; i++) {
-					let distro = data[i].name;
-					if (distro == 'sap_machine') {
-						distrosForSelectedVersion.push('SAP Machine');
-					} else if (distro == 'oracle_open_jdk') {
-						distrosForSelectedVersion.push('Oracle OpenJDK');
-					} else if (distro =='aoj') {
-						distrosForSelectedVersion.push('AOJ');
-					} else if (distro =='aoj_openj9') {
-						distrosForSelectedVersion.push('AOJ OpenJ9');
-					} else {
-						distrosForSelectedVersion.push(capitalize(data[i].name));
-					}
-				}
-				distrosForSelectedVersion = distrosForSelectedVersion.filter(uniqueOnly);
-			}
-			
-			let distributionDropDown = document.getElementById('distributionDropDown');
-			removeDropdownEntries(distributionDropDown);
-			for (let i = 0 ; i < distrosForSelectedVersion.length ; i++) {
-				option       = document.createElement('option');
-				option.id    = distrosForSelectedVersion[i];
-				option.text  = distrosForSelectedVersion[i];
-				option.value = distrosForSelectedVersion[i];
-				distributionDropDown.add(option);
-			}
-			distributionDropDown.style.display = 'block';
-			distributionDropDown.selectedIndex = 0;
-			selectDistribution();
+      let distrosForSelectedVersion = [];
+      if (data.length > 0) {
+        for (let i = 0 ; i < data.length ; i++) {
+          let distro = data[i].name;
+          if (distro == 'sap_machine') {
+            distrosForSelectedVersion.push('SAP Machine');
+          } else if (distro == 'oracle_open_jdk') {
+            distrosForSelectedVersion.push('Oracle OpenJDK');
+          } else if (distro =='aoj') {
+            distrosForSelectedVersion.push('AOJ');
+          } else if (distro =='aoj_openj9') {
+            distrosForSelectedVersion.push('AOJ OpenJ9');
+          } else {
+            distrosForSelectedVersion.push(capitalize(data[i].name));
+          }
+        }
+        distrosForSelectedVersion = distrosForSelectedVersion.filter(uniqueOnly);
+      }
+      
+      let distributionDropDown = document.getElementById('distributionDropDown');
+      removeDropdownEntries(distributionDropDown);
+      for (let i = 0 ; i < distrosForSelectedVersion.length ; i++) {
+        option       = document.createElement('option');
+        option.id    = distrosForSelectedVersion[i];
+        option.text  = distrosForSelectedVersion[i];
+        option.value = distrosForSelectedVersion[i];
+        distributionDropDown.add(option);
+      }
+      distributionDropDown.style.display = 'block';
+      distributionDropDown.selectedIndex = 0;
+      selectDistribution();
     }
     
     async function selectDistribution() {
-    	let distributionDropDown = document.getElementById('distributionDropDown');
-    	selectedDistribution = distributionDropDown.value;
-    	
-    	let   url      = baseUrl + '/disco/v2.0/packages' + '?version=' + selectedVersionNumber + '&distro=' + selectedDistribution + '&package_type=jdk&release_status=ga&release_status=ea&' + scope;
-			let   json     = await getPackages(url);
-			const response = JSON.parse(json);
-			const data     = response.result;
+      let distributionDropDown = document.getElementById('distributionDropDown');
+      selectedDistribution = distributionDropDown.value;
+      
+      let   url      = baseUrl + '/disco/v2.0/packages' + '?version=' + selectedVersionNumber + '&distro=' + selectedDistribution + '&package_type=jdk&release_status=ga&release_status=ea&' + scope;
+      let   json     = await getPackages(url);
+      const response = JSON.parse(json);
+      const data     = response.result;
 
       var operatingSystems = [];
       var architectures    = [];
       var libcTypes        = [];
       var archiveTypes     = [];
-			selectedPkgs = []
-			for (let i = 0 ; i < data.length ; i++) {
-				selectedPkgs.push(data[i]);
-				operatingSystems.push(selectedPkgs[i].operating_system);
-				architectures.push(selectedPkgs[i].architecture);
-				libcTypes.push(selectedPkgs[i].lib_c_type);
-				archiveTypes.push(selectedPkgs[i].archive_type);
-			}
-			operatingSystems = operatingSystems.filter(uniqueOnly);
-			architectures    = architectures.filter(uniqueOnly);
-			libcTypes        = libcTypes.filter(uniqueOnly);
-			archiveTypes     = archiveTypes.filter(uniqueOnly);
-			
-			removeDropdownEntries(operatingSystemDropDown)
-			for (let i = 0 ; i < operatingSystems.length ; i++) {
-			  option       = document.createElement('option');
-				option.id    = operatingSystems[i];
-				option.text  = operatingSystems[i];
-				option.value = operatingSystems[i];
-				operatingSystemDropDown.add(option);
-			}
-			distributionDropDown.style.display = 'block';
-			selectOperatingSystem();
+      selectedPkgs = []
+      for (let i = 0 ; i < data.length ; i++) {
+        selectedPkgs.push(data[i]);
+        operatingSystems.push(selectedPkgs[i].operating_system);
+        architectures.push(selectedPkgs[i].architecture);
+        libcTypes.push(selectedPkgs[i].lib_c_type);
+        archiveTypes.push(selectedPkgs[i].archive_type);
+      }
+      operatingSystems = operatingSystems.filter(uniqueOnly);
+      architectures    = architectures.filter(uniqueOnly);
+      libcTypes        = libcTypes.filter(uniqueOnly);
+      archiveTypes     = archiveTypes.filter(uniqueOnly);
+      
+      removeDropdownEntries(operatingSystemDropDown)
+      for (let i = 0 ; i < operatingSystems.length ; i++) {
+        option       = document.createElement('option');
+        option.id    = operatingSystems[i];
+        option.text  = operatingSystems[i];
+        option.value = operatingSystems[i];
+        operatingSystemDropDown.add(option);
+      }
+      distributionDropDown.style.display = 'block';
+      selectOperatingSystem();
     }
     
     function selectOperatingSystem() {
-    	let operatingSystemDropDown = document.getElementById('operatingSystemDropDown');
-    	selectedOperatingSystem     = operatingSystemDropDown.value;
-    	
-    	let selection = selectedPkgs.filter(function(pkg) {
-		  	return pkg.operating_system == selectedOperatingSystem;
-		  });
-    	
-			let libcTypes = [];
-    	for (let i = 0 ; i < selection.length ; i++) {
-    	  libcTypes.push(selection[i].lib_c_type);
-			}
-			libcTypes= libcTypes.filter(uniqueOnly);
-			
-			let libcTypeDropDown = document.getElementById('libcTypeDropDown');
-		  removeDropdownEntries(libcTypeDropDown);
-			for (let i = 0 ; i < libcTypes.length ; i++) {
-			  option       = document.createElement('option');
-				option.id    = libcTypes[i];
-				option.text  = libcTypes[i];
-				option.value = libcTypes[i];
+      let operatingSystemDropDown = document.getElementById('operatingSystemDropDown');
+      selectedOperatingSystem     = operatingSystemDropDown.value;
+      
+      let selection = selectedPkgs.filter(function(pkg) {
+        return pkg.operating_system == selectedOperatingSystem;
+      });
+      
+      let libcTypes = [];
+      for (let i = 0 ; i < selection.length ; i++) {
+        libcTypes.push(selection[i].lib_c_type);
+      }
+      libcTypes= libcTypes.filter(uniqueOnly);
+      
+      let libcTypeDropDown = document.getElementById('libcTypeDropDown');
+      removeDropdownEntries(libcTypeDropDown);
+      for (let i = 0 ; i < libcTypes.length ; i++) {
+        option       = document.createElement('option');
+        option.id    = libcTypes[i];
+        option.text  = libcTypes[i];
+        option.value = libcTypes[i];
         libcTypeDropDown.add(option);
-			}
-			libcTypeDropDown.style.display = 'block';
+      }
+      libcTypeDropDown.style.display = 'block';
       libcTypeDropDown.selectedIndex = 0;
-			selectLibcType();
+      selectLibcType();
     }
     
     function selectLibcType() {
-    	let operatingSystemDropDown = document.getElementById('operatingSystemDropDown');
-    	selectedOperatingSystem     = operatingSystemDropDown.value;
+      let operatingSystemDropDown = document.getElementById('operatingSystemDropDown');
+      selectedOperatingSystem     = operatingSystemDropDown.value;
     
       let libcTypeDropDown        = document.getElementById('libcTypeDropDown');
       selectedLibcType            = libcTypeDropDown.value;
       
       let selection = selectedPkgs.filter(function(pkg) {
-		  	return pkg.operating_system == selectedOperatingSystem &&
-		  	       pkg.lib_c_type       == selectedLibcType;
-		  });
-    	
-    	let architectures = [];
-    	for (let i = 0 ; i < selection.length ; i++) {
+        return pkg.operating_system == selectedOperatingSystem &&
+               pkg.lib_c_type       == selectedLibcType;
+      });
+      
+      let architectures = [];
+      for (let i = 0 ; i < selection.length ; i++) {
         architectures.push(selection[i].architecture);
-			}
-			architectures= architectures.filter(uniqueOnly);
-    	
-    	let architectureDropDown = document.getElementById('architectureDropDown');
-			removeDropdownEntries(architectureDropDown);
-    	for (let i = 0 ; i < architectures.length ; i++) {
-    	  option       = document.createElement('option');
-				option.id    = architectures[i];
-				option.text  = architectures[i];
-				option.value = architectures[i];
+      }
+      architectures= architectures.filter(uniqueOnly);
+      
+      let architectureDropDown = document.getElementById('architectureDropDown');
+      removeDropdownEntries(architectureDropDown);
+      for (let i = 0 ; i < architectures.length ; i++) {
+        option       = document.createElement('option');
+        option.id    = architectures[i];
+        option.text  = architectures[i];
+        option.value = architectures[i];
         architectureDropDown.add(option);
-			}
+      }
       architectureDropDown.style.display = 'block';
       architectureDropDown.selectedIndex = 0;
-			selectArchitecture();
+      selectArchitecture();
     }
     
     function selectArchitecture() {
       let operatingSystemDropDown = document.getElementById('operatingSystemDropDown');
-    	selectedOperatingSystem     = operatingSystemDropDown.value;
+      selectedOperatingSystem     = operatingSystemDropDown.value;
     
       let libcTypeDropDown        = document.getElementById('libcTypeDropDown');
       selectedLibcType            = libcTypeDropDown.value;
@@ -370,29 +373,29 @@
       selectedArchitecture        = architectureDropDown.value;
       
       let selection = selectedPkgs.filter(function(pkg) {
-		  	return pkg.operating_system == selectedOperatingSystem &&
-		  	       pkg.lib_c_type       == selectedLibcType &&
-		  	       pkg.architecture     == selectedArchitecture;
-		  });
-    	
-    	let archiveTypes = [];
-    	for (let i = 0 ; i < selection.length ; i++) {
+        return pkg.operating_system == selectedOperatingSystem &&
+               pkg.lib_c_type       == selectedLibcType &&
+               pkg.architecture     == selectedArchitecture;
+      });
+      
+      let archiveTypes = [];
+      for (let i = 0 ; i < selection.length ; i++) {
         archiveTypes.push(selection[i].archive_type);
-			}
-			archiveTypes= archiveTypes.filter(uniqueOnly);
-    	
-    	let archiveTypeDropDown = document.getElementById('archiveTypeDropDown');
-			removeDropdownEntries(archiveTypeDropDown);
-    	for (let i = 0 ; i < archiveTypes.length ; i++) {
-    	  option       = document.createElement('option');
-				option.id    = archiveTypes[i];
-				option.text  = archiveTypes[i];
-				option.value = archiveTypes[i];
+      }
+      archiveTypes= archiveTypes.filter(uniqueOnly);
+      
+      let archiveTypeDropDown = document.getElementById('archiveTypeDropDown');
+      removeDropdownEntries(archiveTypeDropDown);
+      for (let i = 0 ; i < archiveTypes.length ; i++) {
+        option       = document.createElement('option');
+        option.id    = archiveTypes[i];
+        option.text  = archiveTypes[i];
+        option.value = archiveTypes[i];
         archiveTypeDropDown.add(option);
-			}
+      }
       archiveTypeDropDown.style.display = 'block';
       archiveTypeDropDown.selectedIndex = 0;
-			selectArchiveType();
+      selectArchiveType();
     }
     
     function selectArchiveType() {
@@ -401,21 +404,11 @@
       update();
     }
 
-		function update() {
-		  let javafxBundledCheckBox   = document.getElementById('javafxBundledCheckBox');
-		  let javafxBundled           = javafxBundledCheckBox.checked;
-		  /*
-		  let majorVersionDropDown    = document.getElementById('majorVersionDropDown');
-		  let majorVersion            = majorVersionDropDown.value;
-		  
-		  let versionNumberDropDown   = document.getElementById('versionNumberDropDown');
-		  let versionNumber           = versionNumberDropDown.value;
-		  
-		  let distributionDropDown    = document.getElementById('distributionDropDown');
-		  let distribution            = distributionDropDown.value;
-		  */
-		  let operatingSystemDropDown = document.getElementById('operatingSystemDropDown');
-		  let operatingSystem         = operatingSystemDropDown.value;
+    function update() {
+      let javafxBundledCheckBox   = document.getElementById('javafxBundledCheckBox');
+      let javafxBundled           = javafxBundledCheckBox.checked;
+      let operatingSystemDropDown = document.getElementById('operatingSystemDropDown');
+      let operatingSystem         = operatingSystemDropDown.value;
 
       let libcTypeDropDown        = document.getElementById('libcTypeDropDown');
       let libcType                = libcTypeDropDown.value;
@@ -425,49 +418,47 @@
       
       let archiveTypeDropDown     = document.getElementById('archiveTypeDropDown');
       let archiveType             = archiveTypeDropDown.value;
-			
-		  let selection = selectedPkgs.filter(function(pkg) {
-		  	return pkg.operating_system == operatingSystem &&
-		  	       pkg.lib_c_type       == libcType &&
-		  	       pkg.architecture     == architecture &&
-		  	       pkg.archive_type     == archiveType &&
-		  	       pkg.javafx_bundled   == javafxBundled;
-		  });
-			if (selection.length > 0) {
-			  selectedPkg = selection[0];
-				let filenameLabel = document.getElementById('filenameLabel');
-				filenameLabel.innerHTML = selectedPkg.filename;
+      
+      let selection = selectedPkgs.filter(function(pkg) {
+        return pkg.operating_system == operatingSystem &&
+               pkg.lib_c_type       == libcType &&
+               pkg.architecture     == architecture &&
+               pkg.archive_type     == archiveType &&
+               pkg.javafx_bundled   == javafxBundled;
+      });
+      if (selection.length > 0) {
+        selectedPkg = selection[0];
+        let filenameLabel = document.getElementById('filenameLabel');
+        filenameLabel.innerHTML = selectedPkg.filename;
 
-				let promise = getDownloadLink(selectedPkg.id, selectedPkg.directly_downloadable);
-				promise.then(function(uri) {
-					  downloadUri = uri;
-					  let downloadButton = document.getElementById('downloadButton');
-			      downloadButton.disabled = false;
-					  //enableDownload(uri);
-				  }, function() { 
-				    console.log("Error")
-				    selectedPkg = null;
-				    downloadUri = null;
-    			  let filenameLabel = document.getElementById('filenameLabel');
-		    	  filenameLabel.innerHTML = '-';
-			      let downloadButton = document.getElementById('downloadButton');
-			      downloadButton.disabled = true;
-				  }
-				);
-			} else {
-			  selectedPkg = null;
-			  downloadUri = null;
-			  let filenameLabel = document.getElementById('filenameLabel');
-			  filenameLabel.innerHTML = '-';
-			  let downloadButton = document.getElementById('downloadButton');
-			  downloadButton.disabled = true;
-			}
-		}
-		
-		function download() {
-			if (downloadUri == null || downloadUri == undefined) { return; }
-			window.open(downloadUri);
-		}
+        let promise = getDownloadLink(selectedPkg.id, selectedPkg.directly_downloadable);
+        promise.then(function(uri) {
+          downloadUri = uri;
+          let downloadButton = document.getElementById('downloadButton');
+          downloadButton.disabled = false;
+        }, function() { 
+          console.log("Error")
+          selectedPkg = null;
+          downloadUri = null;
+          let filenameLabel = document.getElementById('filenameLabel');
+          filenameLabel.innerHTML = '-';
+          let downloadButton = document.getElementById('downloadButton');
+          downloadButton.disabled = true;
+        });
+      } else {
+        selectedPkg = null;
+        downloadUri = null;
+        let filenameLabel = document.getElementById('filenameLabel');
+        filenameLabel.innerHTML = '-';
+        let downloadButton = document.getElementById('downloadButton');
+        downloadButton.disabled = true;
+      }
+    }
+    
+    function download() {
+      if (downloadUri == null || downloadUri == undefined) { return; }
+      window.open(downloadUri);
+    }
     
     async function getMaintainedMajorVersions() {
       const url            = baseUrl + '/disco/v2.0/major_versions?ea=true&ga=true&maintained=true&include_build=true';
@@ -481,234 +472,233 @@
       return major_versions;
     }
     
-		
-		
-		// ******************** Common ***********************************************
-		function getOperatingSystem() {
-		  if (navigator.appVersion.indexOf("Win") != -1)   return "Windows";
-		  if (navigator.appVersion.indexOf("Mac") != -1)   return "MacOS";
-		  if (navigator.appVersion.indexOf("Linux") != -1) return "Linux";
-		  if (navigator.appVersion.indexOf("X11") != -1)   return "Unix";
-		  return "unknown";
-		}
+    
+    // ******************** Common ***********************************************
+    function getOperatingSystem() {
+      if (navigator.appVersion.indexOf("Win") != -1)   return "Windows";
+      if (navigator.appVersion.indexOf("Mac") != -1)   return "MacOS";
+      if (navigator.appVersion.indexOf("Linux") != -1) return "Linux";
+      if (navigator.appVersion.indexOf("X11") != -1)   return "Unix";
+      return "unknown";
+    }
 
-		function removeDropdownEntries(dropdown) {
-		  while(dropdown.firstChild) {
-		    dropdown.removeChild(dropdown.firstChild);
-		  }
-		}
+    function removeDropdownEntries(dropdown) {
+      while(dropdown.firstChild) {
+        dropdown.removeChild(dropdown.firstChild);
+      }
+    }
 
-		function uniqueOnly(value, index, self) { return self.indexOf(value) === index; }
+    function uniqueOnly(value, index, self) { return self.indexOf(value) === index; }
 
-		function capitalize(text) { return text.charAt(0).toUpperCase() + text.slice(1); }
+    function capitalize(text) { return text.charAt(0).toUpperCase() + text.slice(1); }
 
-		async function getDownloadLink(id, directly_downloadable) {
-		  // Get current ephemeralId
-		  const packagesUrl = baseUrl + '/disco/v2.0/packages/' + id + '?' + scope;
-		  const packageJson  = await makeRequest("GET", packagesUrl);
-		  let   responseData = JSON.parse(packageJson);
-		  const pkg          = responseData.result[0];
-		  const ephemeralId  = pkg.ephemeral_id;
+    async function getDownloadLink(id, directly_downloadable) {
+      // Get current ephemeralId
+      const packagesUrl = baseUrl + '/disco/v2.0/packages/' + id + '?' + scope;
+      const packageJson  = await makeRequest("GET", packagesUrl);
+      let   responseData = JSON.parse(packageJson);
+      const pkg          = responseData.result[0];
+      const ephemeralId  = pkg.ephemeral_id;
 
-		  // Get download link using the current ephemeralId
-		  const ephemeralIdsUrl = baseUrl + '/disco/v2.0/ephemeral_ids/' + ephemeralId;
-		  const packageInfoJson = await makeRequest("GET", ephemeralIdsUrl);
-		  responseData = JSON.parse(packageInfoJson);
-		  const packageInfo     = responseData.result[0];
-		  return directly_downloadable ? packageInfo.direct_download_uri : packageInfo.download_site_uri;
-		}
+      // Get download link using the current ephemeralId
+      const ephemeralIdsUrl = baseUrl + '/disco/v2.0/ephemeral_ids/' + ephemeralId;
+      const packageInfoJson = await makeRequest("GET", ephemeralIdsUrl);
+      responseData = JSON.parse(packageInfoJson);
+      const packageInfo = responseData.result[0];
+      return directly_downloadable ? packageInfo.direct_download_uri : packageInfo.download_site_uri;
+    }
 
-		async function getMajorVersion(which, include_ea) {
-		  const url           = baseUrl + '/disco/v2.0/major_versions/' + which + (include_ea ? '/ea' : '');
-		  let   major_version = await makeRequest("GET", url);
-		  return major_version;
-		}
+    async function getMajorVersion(which, include_ea) {
+      const url           = baseUrl + '/disco/v2.0/major_versions/' + which + (include_ea ? '/ea' : '');
+      let   major_version = await makeRequest("GET", url);
+      return major_version;
+    }
 
-		async function getPackages(url) {
-		  let response = await makeRequest("GET", url);
-		  return response;
-		}
+    async function getPackages(url) {
+      let response = await makeRequest("GET", url);
+      return response;
+    }
 
-		function makeRequest(method, url) {
-		  return new Promise(function (resolve, reject) {
-		    let request = new XMLHttpRequest();
-		    request.open(method, url); 
-		    request.onload = function () {
-			    if (this.status >= 200 && this.status < 300) {
-			      resolve(request.response);
-			    } else {
-			      reject({
-				      status    : this.status,
-				      statusText: request.statusText
-				    });
-			    }
-		    };
-		    request.onerror = function () {
-			    reject({
-				    status    : this.status,
-				    statusText: request.statusText
-			    });
-		    };
-		    request.send();
-		  });
-		}
+    function makeRequest(method, url) {
+      return new Promise(function (resolve, reject) {
+        let request = new XMLHttpRequest();
+        request.open(method, url); 
+        request.onload = function () {
+          if (this.status >= 200 && this.status < 300) {
+            resolve(request.response);
+          } else {
+            reject({
+              status    : this.status,
+              statusText: request.statusText
+            });
+          }
+        };
+        request.onerror = function () {
+          reject({
+            status    : this.status,
+            statusText: request.statusText
+          });
+        };
+        request.send();
+      });
+    }
 
-		function normalizeJavaVersion(javaVersion) {
-		  let version = javaVersion
-		  if (version.indexOf('+') > -1) {
-		    version = version.substring(0, version.indexOf('+'));
-		    if (version.indexOf('-ea') > -1) {
-			    version = version.substring(0, version.indexOf('-ea'));
-		    }
-		  } else if (version.indexOf('-ea') > -1) {
-		    version = version.substring(0, version.indexOf('-ea'));
-		  }
-		  return version;
-		}
-		
-		function getDistributionFromText(text) {
-			if (null == text || text === undefined) { return ''; }
-			switch (text) {
-					case "zulu":
-					case "ZULU":
-					case "Zulu":
-							return 'zulu';
-					case "aoj":
-					case "AOJ":
-							return 'aoj';
-					case "aoj_openj9":
-					case "AOJ_OpenJ9":
-					case "AOJ_OPENJ9":
-					case "AOJ OpenJ9":
-					case "AOJ OPENJ9":
-					case "aoj openj9":
-							return 'aoj_openj9';
-					case "corretto":
-					case "CORRETTO":
-					case "Corretto":
-							return 'corretto';
-					case "dragonwell":
-					case "DRAGONWELL":
-					case "Dragonwell":
-							return 'dragonwell';
-					case "graalvm_ce8":
-					case "graalvmce8":
-					case "GraalVM CE 8":
-					case "GraalVMCE8":
-					case "GraalVM_CE8":
-							return 'graalvm_ce8';
-					case "graalvm_ce11":
-					case "graalvmce11":
-					case "GraalVM CE 11":
-					case "GraalVMCE11":
-					case "GraalVM_CE11":
-							return 'graalvm_ce11';
-					case "graalvm_ce16":
-					case "graalvmce16":
-					case "GraalVM CE 16":
-					case "GraalVMCE16":
-					case "GraalVM_CE16":
-							return 'graalvm_ce16';
-					case "liberica":
-					case "LIBERICA":
-					case "Liberica":
-							return 'liberica';
-					case "liberica_native":
-					case "LIBERICA_NATIVE":
-					case "libericaNative":
-					case "LibericaNative":
-					case "liberica native":
-					case "LIBERICA NATIVE":
-					case "Liberica Native":
-							return 'liberica_native';
-					case "mandrel":
-					case "MANDREL":
-					case "Mandrel":
-							return 'mandrel';
-					case "microsoft":
-					case "Microsoft":
-					case "MICROSOFT":
-					case "Microsoft Build of OpenJDK":
-							return 'microsoft';
-					case "ojdk_build":
-					case "OJDK_BUILD":
-					case "OJDK Build":
-					case "ojdk build":
-					case "ojdkbuild":
-					case "OJDKBuild":
-							return 'ojdk_build';
-					case "openlogic":
-					case "OPENLOGIC":
-					case "OpenLogic":
-					case "open_logic":
-					case "OPEN_LOGIC":
-					case "Open Logic":
-					case "OPEN LOGIC":
-					case "open logic":
-							return 'openlogic';
-					case "oracle":
-					case "Oracle":
-					case "ORACLE":
-							return 'oracle';
-					case "oracle_open_jdk":
-					case "ORACLE_OPEN_JDK":
-					case "oracle_openjdk":
-					case "ORACLE_OPENJDK":
-					case "Oracle_OpenJDK":
-					case "Oracle OpenJDK":
-					case "oracle openjdk":
-					case "ORACLE OPENJDK":
-					case "open_jdk":
-					case "openjdk":
-					case "OpenJDK":
-					case "Open JDK":
-					case "OPEN_JDK":
-					case "open-jdk":
-					case "OPEN-JDK":
-					case "Oracle-OpenJDK":
-					case "oracle-openjdk":
-					case "ORACLE-OPENJDK":
-					case "oracle-open-jdk":
-					case "ORACLE-OPEN-JDK":
-							return 'oracle_open_jdk';
-					case "RedHat":
-					case "redhat":
-					case "REDHAT":
-					case "Red Hat":
-					case "red hat":
-					case "RED HAT":
-					case "Red_Hat":
-					case "red_hat":
-					case "red-hat":
-					case "Red-Hat":
-					case "RED-HAT":
-							return 'redhat';
-					case "sap_machine":
-					case "sapmachine":
-					case "SAPMACHINE":
-					case "SAP_MACHINE":
-					case "SAPMachine":
-					case "SAP Machine":
-					case "sap-machine":
-					case "SAP-Machine":
-					case "SAP-MACHINE":
-							return 'sap_machine';
-					case "temurin":
-					case "Temurin":
-					case "TEMURIN":
-							return 'temurin';
-					case "trava":
-					case "TRAVA":
-					case "Trava":
-					case "trava_openjdk":
-					case "TRAVA_OPENJDK":
-					case "trava openjdk":
-					case "TRAVA OPENJDK":
-							return 'trava';
-					default:
-							return '';
-			}		
-		}
-	</script>
+    function normalizeJavaVersion(javaVersion) {
+      let version = javaVersion
+      if (version.indexOf('+') > -1) {
+        version = version.substring(0, version.indexOf('+'));
+        if (version.indexOf('-ea') > -1) {
+          version = version.substring(0, version.indexOf('-ea'));
+        }
+      } else if (version.indexOf('-ea') > -1) {
+        version = version.substring(0, version.indexOf('-ea'));
+      }
+      return version;
+    }
+    
+    function getDistributionFromText(text) {
+      if (null == text || text === undefined) { return ''; }
+      switch (text) {
+        case "zulu":
+        case "ZULU":
+        case "Zulu":
+          return 'zulu';
+        case "aoj":
+        case "AOJ":
+          return 'aoj';
+        case "aoj_openj9":
+        case "AOJ_OpenJ9":
+        case "AOJ_OPENJ9":
+        case "AOJ OpenJ9":
+        case "AOJ OPENJ9":
+        case "aoj openj9":
+          return 'aoj_openj9';
+        case "corretto":
+        case "CORRETTO":
+        case "Corretto":
+          return 'corretto';
+        case "dragonwell":
+        case "DRAGONWELL":
+        case "Dragonwell":
+          return 'dragonwell';
+        case "graalvm_ce8":
+        case "graalvmce8":
+        case "GraalVM CE 8":
+        case "GraalVMCE8":
+        case "GraalVM_CE8":
+        return 'graalvm_ce8';
+        case "graalvm_ce11":
+        case "graalvmce11":
+        case "GraalVM CE 11":
+        case "GraalVMCE11":
+        case "GraalVM_CE11":
+          return 'graalvm_ce11';
+        case "graalvm_ce16":
+        case "graalvmce16":
+        case "GraalVM CE 16":
+        case "GraalVMCE16":
+        case "GraalVM_CE16":
+          return 'graalvm_ce16';
+        case "liberica":
+        case "LIBERICA":
+        case "Liberica":
+          return 'liberica';
+        case "liberica_native":
+        case "LIBERICA_NATIVE":
+        case "libericaNative":
+        case "LibericaNative":
+        case "liberica native":
+        case "LIBERICA NATIVE":
+        case "Liberica Native":
+          return 'liberica_native';
+        case "mandrel":
+        case "MANDREL":
+        case "Mandrel":
+          return 'mandrel';
+        case "microsoft":
+        case "Microsoft":
+        case "MICROSOFT":
+        case "Microsoft Build of OpenJDK":
+          return 'microsoft';
+        case "ojdk_build":
+        case "OJDK_BUILD":
+        case "OJDK Build":
+        case "ojdk build":
+        case "ojdkbuild":
+        case "OJDKBuild":
+          return 'ojdk_build';
+        case "openlogic":
+        case "OPENLOGIC":
+        case "OpenLogic":
+        case "open_logic":
+        case "OPEN_LOGIC":
+        case "Open Logic":
+        case "OPEN LOGIC":
+        case "open logic":
+          return 'openlogic';
+        case "oracle":
+        case "Oracle":
+        case "ORACLE":
+          return 'oracle';
+        case "oracle_open_jdk":
+        case "ORACLE_OPEN_JDK":
+        case "oracle_openjdk":
+        case "ORACLE_OPENJDK":
+        case "Oracle_OpenJDK":
+        case "Oracle OpenJDK":
+        case "oracle openjdk":
+        case "ORACLE OPENJDK":
+        case "open_jdk":
+        case "openjdk":
+        case "OpenJDK":
+        case "Open JDK":
+        case "OPEN_JDK":
+        case "open-jdk":
+        case "OPEN-JDK":
+        case "Oracle-OpenJDK":
+        case "oracle-openjdk":
+        case "ORACLE-OPENJDK":
+        case "oracle-open-jdk":
+        case "ORACLE-OPEN-JDK":
+          return 'oracle_open_jdk';
+        case "RedHat":
+        case "redhat":
+        case "REDHAT":
+        case "Red Hat":
+        case "red hat":
+        case "RED HAT":
+        case "Red_Hat":
+        case "red_hat":
+        case "red-hat":
+        case "Red-Hat":
+        case "RED-HAT":
+          return 'redhat';
+        case "sap_machine":
+        case "sapmachine":
+        case "SAPMACHINE":
+        case "SAP_MACHINE":
+        case "SAPMachine":
+        case "SAP Machine":
+        case "sap-machine":
+        case "SAP-Machine":
+        case "SAP-MACHINE":
+          return 'sap_machine';
+        case "temurin":
+        case "Temurin":
+        case "TEMURIN":
+          return 'temurin';
+        case "trava":
+        case "TRAVA":
+        case "Trava":
+        case "trava_openjdk":
+        case "TRAVA_OPENJDK":
+        case "trava openjdk":
+        case "TRAVA OPENJDK":
+          return 'trava';
+        default:
+          return '';
+      }
+    }
+  </script>
 </body>
 </html>
