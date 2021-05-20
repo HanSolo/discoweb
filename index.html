@@ -14,16 +14,16 @@
 
     .checkbox {
       flex     : 25;
-      font-size: 10px;
+      font-size: 10px;  /* change this if the width does not fit your sidebar */
     }
 
     .label {
       text-align : center;
       font-family: 'Helvetica', 'Arial', sans-serif;
-      font-size  : 10px;
+      font-size  : 10px;  /* change this if the width does not fit your sidebar */
       font-weight: regular;
-      min-width  : 80px;
-      max-width  : 80px;
+      min-width  : 80px;  /* change this if the width does not fit your sidebar */
+      max-width  : 80px;  /* change this if the width does not fit your sidebar */
       flex       : 25;
       text-align : left;
       line-height: 20px;
@@ -34,11 +34,11 @@
       display         : block;
       background-color: transparent;
       font-family     : 'Helvetica', 'Arial', sans-serif;
-      font-size       : 10px;
+      font-size       : 10px;  /* change this if the width does not fit your sidebar */
       color           : black;
       border-radius   : 3px;
-      min-width       : 100px;
-      max-width       : 100px;
+      min-width       : 100px;  /* change this if the width does not fit your sidebar */
+      max-width       : 100px;  /* change this if the width does not fit your sidebar */
       flex            : 75;
     }
     .dropdown:focus {
@@ -50,10 +50,10 @@
     .filename-label {
       margin-top : 5px;
       font-family: 'Helvetica', 'Arial', sans-serif;
-      font-size  : 10px;
+      font-size  : 10px;  /* change this if the width does not fit your sidebar */
       font-weight: regular;
       flex       : 100;
-      max-width  : 180px;
+      max-width  : 180px; /* sum of .label max-width and .dropdown max-width */
       text-align : center;
       color      : black;
     }
@@ -74,12 +74,12 @@
 
       /*Align children vetically*/
       -webkit-flex-direction: column;
-      -ms-flex-direction: column;
-      flex-direction: column;
+      -ms-flex-direction    : column;
+      flex-direction        : column;
 
       -webkit-align-content: flex-start;
-      -ms-flex-line-pack: start;
-      align-content: flex-start;
+      -ms-flex-line-pack   : start;
+      align-content        : flex-start;
     }
 
     .hbox {
@@ -89,18 +89,18 @@
 
       /*Align children horizontally*/
       -webkit-flex-direction: row;
-      -ms-flex-direction: row;
-      flex-direction: row;
+      -ms-flex-direction    : row;
+      flex-direction        : row;
 
       -webkit-align-content: flex-start;
-      -ms-flex-line-pack: start;
-      align-content: flex-start;
+      -ms-flex-line-pack   : start;
+      align-content        : flex-start;
     }
 
     .flex {
       -webkit-flex: 1;
-      -ms-flex: 1;
-      flex: 1;
+      -ms-flex    : 1;
+      flex        : 1;
     }
   </style>
 

@@ -31,6 +31,7 @@ from different distributions using the Foojay Disco API.
 
 7. Place the gagdet within the sidebar of your blog
 
+8. You might have to adjust some settings like widths and colors in the <style> area of the index.html file (Places are marked with: /* change this if the width does not fit your sidebar */).
 
 ## API used
 <div><a href="https://foojay.io" title="Foojay">Foojay </a><a href="https://github.com/foojay2020/discoapi" title="DiscoAPI">Disco API</a></div>
