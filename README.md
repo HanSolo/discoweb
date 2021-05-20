@@ -1,5 +1,6 @@
 # DiscoWeb
-A html snippet that can be used at your Blogger sidebar. 
+A html snippet that can be used at your Blogger sidebar to discover and download a build of OpenJDK
+from different distributions using the Foojay Disco API.
 
 ## Screenshot
 ![Screenshot](https://raw.githubusercontent.com/HanSolo/discoweb/blogger/screenshot.png)
