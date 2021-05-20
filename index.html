@@ -111,7 +111,7 @@
 		<div class="vbox">
 			<div class="hbox" style="padding:3px;">
 				<label id="javafxBundledLabel" class="label">JavaFX bundled</label>
-				<input id="javafxBundledCheckBox" type="checkbox" onchange="update()">
+				<input id="javafxBundledCheckBox" type="checkbox" onchange="selectDistribution()">
 			</div>
 			<div class="hbox" style="padding:3px;">
 				<label id="majorVersionLabel" class="label">Major version:</label>
@@ -145,7 +145,7 @@
 				<label id="filenameLabel" class="filename-label">-</label>
 			</div>
 			<div>
-				<button id="downloadButton" type="button" class="button" onclick="download()" disabled="true">Download</button>
+				<button id="downloadButton" type="button" class="button" onclick="download()" disabled>Download</button>
 			</div>
 		</div>
 	</div>
@@ -187,11 +187,6 @@
       majorVersionDropDown.style.display = 'block';
       majorVersionDropDown.selectedIndex = 0;
       selectMajorVersion();
-    }
-    
-    function selectJavaFXBundled() {
-      let javafxBundledCheckBox = document.getElementById('javafxBundledCheckBox');
-      javafxBundled = javafxBundledCheckBox.checked;
     }
     
     function selectMajorVersion() {
@@ -303,12 +298,34 @@
     }
     
     function selectOperatingSystem() {
+      let javafxBundledCheckBox   = document.getElementById('javafxBundledCheckBox');
+      javafxBundled               = javafxBundledCheckBox.checked;
+    
+      let versionNumberDropDown   = document.getElementById('versionNumberDropDown');
+      selectedVersionNumber       = versionNumberDropDown.value;
+      
+      let distributionDropDown    = document.getElementById('distributionDropDown');
+      selectedDistribution        = getDistributionFromText(distributionDropDown.value);
+    
       let operatingSystemDropDown = document.getElementById('operatingSystemDropDown');
       selectedOperatingSystem     = operatingSystemDropDown.value;
       
-      let selection = selectedPkgs.filter(function(pkg) {
-        return pkg.operating_system == selectedOperatingSystem;
-      });
+      let selection;
+      if (selectedMajorVersion.early_access_only) {
+      	selection = selectedPkgs.filter(function(pkg) {
+          return pkg.distribution     == selectedDistribution &&
+                 pkg.java_version     == selectedVersionNumber &&
+                 pkg.operating_system == selectedOperatingSystem &&
+                 pkg.javafx_bundled   == javafxBundled;
+        });
+      } else {
+        selection = selectedPkgs.filter(function(pkg) {
+          return pkg.distribution                       == selectedDistribution &&
+                 normalizeJavaVersion(pkg.java_version) == selectedVersionNumber &&
+                 pkg.operating_system                   == selectedOperatingSystem &&
+                 pkg.javafx_bundled                     == javafxBundled;
+        });
+      }
       
       let libcTypes = [];
       for (let i = 0 ; i < selection.length ; i++) {
@@ -331,16 +348,40 @@
     }
     
     function selectLibcType() {
+      let javafxBundledCheckBox   = document.getElementById('javafxBundledCheckBox');
+      javafxBundled               = javafxBundledCheckBox.checked;
+    
+      let versionNumberDropDown   = document.getElementById('versionNumberDropDown');
+      selectedVersionNumber       = versionNumberDropDown.value;
+      
+      let distributionDropDown    = document.getElementById('distributionDropDown');
+      selectedDistribution        = getDistributionFromText(distributionDropDown.value);
+    
       let operatingSystemDropDown = document.getElementById('operatingSystemDropDown');
       selectedOperatingSystem     = operatingSystemDropDown.value;
     
       let libcTypeDropDown        = document.getElementById('libcTypeDropDown');
       selectedLibcType            = libcTypeDropDown.value;
+    
       
-      let selection = selectedPkgs.filter(function(pkg) {
-        return pkg.operating_system == selectedOperatingSystem &&
-               pkg.lib_c_type       == selectedLibcType;
-      });
+      let selection;
+      if (selectedMajorVersion.early_access_only) {
+      	selection = selectedPkgs.filter(function(pkg) {
+          return pkg.distribution     == selectedDistribution &&
+                 pkg.java_version     == selectedVersionNumber &&
+                 pkg.operating_system == selectedOperatingSystem &&
+                 pkg.lib_c_type       == selectedLibcType &&
+                 pkg.javafx_bundled   == javafxBundled;
+        });
+      } else {
+        selection = selectedPkgs.filter(function(pkg) {
+          return pkg.distribution                       == selectedDistribution &&
+                 normalizeJavaVersion(pkg.java_version) == selectedVersionNumber &&
+                 pkg.operating_system                   == selectedOperatingSystem &&
+                 pkg.lib_c_type                         == selectedLibcType &&
+                 pkg.javafx_bundled                     == javafxBundled;
+        });
+      }
       
       let architectures = [];
       for (let i = 0 ; i < selection.length ; i++) {
@@ -363,6 +404,15 @@
     }
     
     function selectArchitecture() {
+      let javafxBundledCheckBox   = document.getElementById('javafxBundledCheckBox');
+      javafxBundled               = javafxBundledCheckBox.checked;
+    
+      let versionNumberDropDown   = document.getElementById('versionNumberDropDown');
+      selectedVersionNumber       = versionNumberDropDown.value;
+      
+      let distributionDropDown    = document.getElementById('distributionDropDown');
+      selectedDistribution        = getDistributionFromText(distributionDropDown.value);
+    
       let operatingSystemDropDown = document.getElementById('operatingSystemDropDown');
       selectedOperatingSystem     = operatingSystemDropDown.value;
     
@@ -372,12 +422,27 @@
       let architectureDropDown    = document.getElementById('architectureDropDown');
       selectedArchitecture        = architectureDropDown.value;
       
-      let selection = selectedPkgs.filter(function(pkg) {
-        return pkg.operating_system == selectedOperatingSystem &&
-               pkg.lib_c_type       == selectedLibcType &&
-               pkg.architecture     == selectedArchitecture;
-      });
-      
+      let selection;
+      if (selectedMajorVersion.early_access_only) {
+      	selection = selectedPkgs.filter(function(pkg) {
+          return pkg.distribution     == selectedDistribution &&
+                 pkg.java_version     == selectedVersionNumber &&
+                 pkg.operating_system == selectedOperatingSystem &&
+                 pkg.lib_c_type       == selectedLibcType &&
+                 pkg.architecture     == selectedArchitecture &&
+                 pkg.javafx_bundled   == javafxBundled;
+        });
+      } else {
+        selection = selectedPkgs.filter(function(pkg) {
+          return pkg.distribution                       == selectedDistribution &&
+                 normalizeJavaVersion(pkg.java_version) == selectedVersionNumber &&
+                 pkg.operating_system                   == selectedOperatingSystem &&
+                 pkg.lib_c_type                         == selectedLibcType &&
+                 pkg.architecture                       == selectedArchitecture &&
+                 pkg.javafx_bundled                     == javafxBundled;
+        });
+      }
+
       let archiveTypes = [];
       for (let i = 0 ; i < selection.length ; i++) {
         archiveTypes.push(selection[i].archive_type);
@@ -406,45 +471,55 @@
 
     function update() {
       let javafxBundledCheckBox   = document.getElementById('javafxBundledCheckBox');
-      let javafxBundled           = javafxBundledCheckBox.checked;
-      let operatingSystemDropDown = document.getElementById('operatingSystemDropDown');
-      let operatingSystem         = operatingSystemDropDown.value;
-
-      let libcTypeDropDown        = document.getElementById('libcTypeDropDown');
-      let libcType                = libcTypeDropDown.value;
+      javafxBundled               = javafxBundledCheckBox.checked;
+    
+      let versionNumberDropDown   = document.getElementById('versionNumberDropDown');
+      selectedVersionNumber       = versionNumberDropDown.value;
       
+      let distributionDropDown    = document.getElementById('distributionDropDown');
+      selectedDistribution        = getDistributionFromText(distributionDropDown.value);
+    
+      let operatingSystemDropDown = document.getElementById('operatingSystemDropDown');
+      selectedOperatingSystem     = operatingSystemDropDown.value;
+    
+      let libcTypeDropDown        = document.getElementById('libcTypeDropDown');
+      selectedLibcType            = libcTypeDropDown.value;
+    
       let architectureDropDown    = document.getElementById('architectureDropDown');
-      let architecture            = architectureDropDown.value;
+      selectedArchitecture        = architectureDropDown.value;
       
       let archiveTypeDropDown     = document.getElementById('archiveTypeDropDown');
-      let archiveType             = archiveTypeDropDown.value;
+      selectedArchiveType         = archiveTypeDropDown.value;
       
-      let selection = selectedPkgs.filter(function(pkg) {
-        return pkg.operating_system == operatingSystem &&
-               pkg.lib_c_type       == libcType &&
-               pkg.architecture     == architecture &&
-               pkg.archive_type     == archiveType &&
-               pkg.javafx_bundled   == javafxBundled;
-      });
+      let selection;
+      if (selectedMajorVersion.early_access_only) {
+      	selection = selectedPkgs.filter(function(pkg) {
+          return pkg.distribution     == selectedDistribution &&
+                 pkg.java_version     == selectedVersionNumber &&
+                 pkg.operating_system == selectedOperatingSystem &&
+                 pkg.lib_c_type       == selectedLibcType &&
+                 pkg.architecture     == selectedArchitecture &&
+                 pkg.archive_type     == selectedArchiveType &&
+                 pkg.javafx_bundled   == javafxBundled;
+        });
+      } else {
+        selection = selectedPkgs.filter(function(pkg) {
+          return pkg.distribution                       == selectedDistribution &&
+                 normalizeJavaVersion(pkg.java_version) == selectedVersionNumber &&
+                 pkg.operating_system                   == selectedOperatingSystem &&
+                 pkg.lib_c_type                         == selectedLibcType &&
+                 pkg.architecture                       == selectedArchitecture &&
+                 pkg.archive_type                       == selectedArchiveType &&
+                 pkg.javafx_bundled                     == javafxBundled;
+        });
+      }
+      
       if (selection.length > 0) {
         selectedPkg = selection[0];
         let filenameLabel = document.getElementById('filenameLabel');
         filenameLabel.innerHTML = selectedPkg.filename;
-
-        let promise = getDownloadLink(selectedPkg.id, selectedPkg.directly_downloadable);
-        promise.then(function(uri) {
-          downloadUri = uri;
-          let downloadButton = document.getElementById('downloadButton');
-          downloadButton.disabled = false;
-        }, function() { 
-          console.log("Error")
-          selectedPkg = null;
-          downloadUri = null;
-          let filenameLabel = document.getElementById('filenameLabel');
-          filenameLabel.innerHTML = '-';
-          let downloadButton = document.getElementById('downloadButton');
-          downloadButton.disabled = true;
-        });
+				let downloadButton = document.getElementById('downloadButton');
+        downloadButton.disabled = false;
       } else {
         selectedPkg = null;
         downloadUri = null;
@@ -456,6 +531,18 @@
     }
     
     function download() {
+      if (selectedPkg == null || selectedPkg == undefined) { return; }
+      let promise = getDownloadLink(selectedPkg.id, selectedPkg.directly_downloadable);
+        promise.then(function(uri) {
+          downloadUri = uri;
+        }, function() { 
+          console.log("Error")
+          selectedPkg = null;
+          downloadUri = null;
+          let filenameLabel = document.getElementById('filenameLabel');
+          filenameLabel.innerHTML = '-';
+        });
+
       if (downloadUri == null || downloadUri == undefined) { return; }
       window.open(downloadUri);
     }
