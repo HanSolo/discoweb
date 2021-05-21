@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 	<meta charset="utf-8" />
@@ -85,6 +85,7 @@
 			-ms-flex-line-pack: start;
 			align-content: flex-start;
 	}
+
 	.hbox {
 			display: -webkit-flex;
 			display: -ms-flexbox;
@@ -99,6 +100,7 @@
 			-ms-flex-line-pack: start;
 			align-content: flex-start;
 	}
+
 	.flex {
 			-webkit-flex: 1;
 			-ms-flex: 1;
@@ -111,7 +113,7 @@
 		<div class="vbox">
 			<div class="hbox" style="padding:3px;">
 				<label id="javafxBundledLabel" class="label">JavaFX bundled</label>
-				<input id="javafxBundledCheckBox" type="checkbox" onchange="selectDistribution()">
+                <input id="javafxBundledCheckBox" type="checkbox" onchange="selectJavaFxBundled()">
 			</div>
 			<div class="hbox" style="padding:3px;">
 				<label id="majorVersionLabel" class="label">Major version:</label>
@@ -154,10 +156,11 @@
     const baseUrl = 'https://api.foojay.io';
     const scope   = 'discovery_scope_id=public&discovery_scope_id=build_of_openjdk';
     
-    var   majorVersions = [];
-    var   selectedPkgs  = [];
-    var   selectedPkg   = null;
-    var   downloadUri   = null;
+    var   majorVersions               = [];
+    var   selectedPkgs                = [];
+    var   selectedPkg                 = null;
+    var   selectedPkgsForMajorVersion = [];
+    var   downloadUri                 = null;
     var   javafxBundled;
     var   selectedMajorVersion;
     var   selectedVersionNumber;
@@ -189,9 +192,87 @@
       selectMajorVersion();
     }
     
-    function selectMajorVersion() {
+    function selectJavaFxBundled() {
+      let javafxBundledCheckBox = document.getElementById('javafxBundledCheckBox');
+      javafxBundled = javafxBundledCheckBox.checked;
+
+      let selection;
+      if (selectedMajorVersion.early_access_only) {
+        selection = selectedPkgsForMajorVersion.filter(function(pkg) {
+          return pkg.java_version   == selectedVersionNumber &&
+                 pkg.javafx_bundled == javafxBundled;
+        });
+      } else {
+        selection = selectedPkgsForMajorVersion.filter(function(pkg) {
+          return normalizeJavaVersion(pkg.java_version) == selectedVersionNumber &&
+                 pkg.javafx_bundled                     == javafxBundled;
+        });
+      } 
+                        
+      let distrosForSelection = [];
+      for (let i = 0 ; i < selection.length ; i++) {
+        let distro = selection[i].distribution;
+        if (distro == 'sap_machine') {
+            distrosForSelection.push('SAP Machine');
+          } else if (distro == 'oracle_open_jdk') {
+            distrosForSelection.push('Oracle OpenJDK');
+          } else if (distro =='aoj') {
+            distrosForSelection.push('AOJ');
+          } else if (distro =='aoj_openj9') {
+            distrosForSelection.push('AOJ OpenJ9');
+          } else {
+            distrosForSelection.push(capitalize(distro));
+          }
+      }
+      distrosForSelection = distrosForSelection.filter(uniqueOnly);
+      
+      let distributionDropDown = document.getElementById('distributionDropDown');
+      removeDropdownEntries(distributionDropDown);
+      for (let i = 0 ; i < distrosForSelection.length ; i++) {
+        option       = document.createElement('option');
+        option.id    = distrosForSelection[i];
+        option.text  = distrosForSelection[i];
+        option.value = distrosForSelection[i];
+        distributionDropDown.add(option);
+      }
+      distributionDropDown.style.display = 'block';
+      if (distrosForSelection.length > 0) {
+        distributionDropDown.selectedIndex = 0;
+      } else {
+        let operatingSystemDropDown = document.getElementById('operatingSystemDropDown');
+        let libcTypeDropDown        = document.getElementById('libcTypeDropDown');
+        let architectureDropDown    = document.getElementById('architectureDropDown');
+        let archiveTypeDropDown     = document.getElementById('archiveTypeDropDown');
+        let filenameLabel           = document.getElementById('filenameLabel');
+        removeDropdownEntries(operatingSystemDropDown);
+        removeDropdownEntries(libcTypeDropDown);
+        removeDropdownEntries(architectureDropDown);
+        removeDropdownEntries(archiveTypeDropDown);
+        filenameLabel.innerHTML = '-';
+      }
+      selectVersionNumber();
+    }
+    
+    async function selectMajorVersion() {
       let majorVersionDropDown = document.getElementById('majorVersionDropDown');
       selectedMajorVersion = majorVersions[majorVersionDropDown.selectedIndex];
+      let javafxBundledCheckBox = document.getElementById('javafxBundledCheckBox');
+      javafxBundledCheckBox.disabled = true;
+      
+      getPkgsWithFxForMajorVersion(selectedMajorVersion).then(
+        function(pkgs) {
+          // Success
+          selectedPkgsForMajorVersion = pkgs;
+          javafxBundledCheckBox.disabled = false;
+          selectVersionNumber();
+        }, 
+        function() {
+          // Failure
+          console.log("error");
+          selectedPkgsForMajorVersion = [];
+          javafxBundledCheckBox.disabled = false;
+        }
+      );
 
       let versions = selectedMajorVersion.versions;
       if (!selectedMajorVersion.early_access_only) {
@@ -221,42 +302,89 @@
       let versionNumberDropDown = document.getElementById('versionNumberDropDown');
       selectedVersionNumber = versionNumberDropDown.value;
       
-      let   url      = baseUrl + '/disco/v2.0/distributions/versions/' + selectedVersionNumber + '?' + scope;
-      let   json     = await getPackages(url);
-      const response = JSON.parse(json);
-      const data     = response.result;
-
-      let distrosForSelectedVersion = [];
-      if (data.length > 0) {
-        for (let i = 0 ; i < data.length ; i++) {
-          let distro = data[i].name;
-          if (distro == 'sap_machine') {
-            distrosForSelectedVersion.push('SAP Machine');
-          } else if (distro == 'oracle_open_jdk') {
-            distrosForSelectedVersion.push('Oracle OpenJDK');
-          } else if (distro =='aoj') {
-            distrosForSelectedVersion.push('AOJ');
-          } else if (distro =='aoj_openj9') {
-            distrosForSelectedVersion.push('AOJ OpenJ9');
-          } else {
-            distrosForSelectedVersion.push(capitalize(data[i].name));
-          }
+      let javafxBundledCheckBox = document.getElementById('javafxBundledCheckBox');
+      javafxBundled = javafxBundledCheckBox.checked;
+      
+      let distrosForSelection = [];
+      if (javafxBundled) {
+        let include_build = selectedMajorVersion.early_access_only;
+        let selection;
+        if (selectedMajorVersion.early_access_only) {
+          selection = selectedPkgsForMajorVersion.filter(function(pkg) {
+            return pkg.java_version   == selectedVersionNumber &&
+                   pkg.javafx_bundled == javafxBundled;
+          });
+        } else {
+          selection = selectedPkgsForMajorVersion.filter(function(pkg) {
+            return normalizeJavaVersion(pkg.java_version) == selectedVersionNumber &&
+                   pkg.javafx_bundled                     == javafxBundled;
+          });
         }
-        distrosForSelectedVersion = distrosForSelectedVersion.filter(uniqueOnly);
+        for (let i = 0 ; i < selection.length ; i++) {
+          let distro = selection[i].distribution;
+          if (distro == 'sap_machine') {
+              distrosForSelection.push('SAP Machine');
+            } else if (distro == 'oracle_open_jdk') {
+              distrosForSelection.push('Oracle OpenJDK');
+            } else if (distro =='aoj') {
+              distrosForSelection.push('AOJ');
+            } else if (distro =='aoj_openj9') {
+              distrosForSelection.push('AOJ OpenJ9');
+            } else {
+              distrosForSelection.push(capitalize(distro));
+            }
+        }
+        distrosForSelection = distrosForSelection.filter(uniqueOnly);
+      } else {
+        let   url      = baseUrl + '/disco/v2.0/distributions/versions/' + selectedVersionNumber + '?' + scope;
+        let   json     = await getPackages(url);
+        const response = JSON.parse(json);
+        const data     = response.result;
+
+        if (data.length > 0) {
+          for (let i = 0 ; i < data.length ; i++) {
+            let distro = data[i].name;
+            if (distro == 'sap_machine') {
+              distrosForSelection.push('SAP Machine');
+            } else if (distro == 'oracle_open_jdk') {
+              distrosForSelection.push('Oracle OpenJDK');
+            } else if (distro =='aoj') {
+              distrosForSelection.push('AOJ');
+            } else if (distro =='aoj_openj9') {
+              distrosForSelection.push('AOJ OpenJ9');
+            } else {
+              distrosForSelection.push(capitalize(distro));
+            }
+          }
+          distrosForSelection = distrosForSelection.filter(uniqueOnly);
+        }
       }
       
       let distributionDropDown = document.getElementById('distributionDropDown');
       removeDropdownEntries(distributionDropDown);
-      for (let i = 0 ; i < distrosForSelectedVersion.length ; i++) {
+      for (let i = 0 ; i < distrosForSelection.length ; i++) {
         option       = document.createElement('option');
-        option.id    = distrosForSelectedVersion[i];
-        option.text  = distrosForSelectedVersion[i];
-        option.value = distrosForSelectedVersion[i];
+        option.id    = distrosForSelection[i];
+        option.text  = distrosForSelection[i];
+        option.value = distrosForSelection[i];
         distributionDropDown.add(option);
       }
       distributionDropDown.style.display = 'block';
-      distributionDropDown.selectedIndex = 0;
-      selectDistribution();
+      if (distrosForSelection.length > 0) {
+        distributionDropDown.selectedIndex = 0;
+        selectDistribution();
+      } else {
+        let operatingSystemDropDown = document.getElementById('operatingSystemDropDown');
+        let libcTypeDropDown        = document.getElementById('libcTypeDropDown');
+        let architectureDropDown    = document.getElementById('architectureDropDown');
+        let archiveTypeDropDown     = document.getElementById('archiveTypeDropDown');
+        let filenameLabel           = document.getElementById('filenameLabel');
+        removeDropdownEntries(operatingSystemDropDown);
+        removeDropdownEntries(libcTypeDropDown);
+        removeDropdownEntries(architectureDropDown);
+        removeDropdownEntries(archiveTypeDropDown);
+        filenameLabel.innerHTML = '-';
+      }
     }
     
     async function selectDistribution() {
@@ -557,6 +685,16 @@
       const url            = baseUrl + '/disco/v2.0/major_versions?ea=true&ga=true&maintained=true&include_build=true';
       let   major_versions = await makeRequest("GET", url);
       return major_versions;
+    }
+    
+    async function getPkgsWithFxForMajorVersion(majorVersion) {
+      let major_version = majorVersion.major_version;
+      let include_build = majorVersion.early_access_only;
+      const url      = baseUrl + '/disco/v2.0/packages?distro=zulu&distro=liberica&distro=corretto&version=' + major_version + '..%3C' + (major_version + 1) + '&release_status=' + (include_build ? 'ea' : 'ga') + '&directly_downloadable=true&discovery_socpe_id=public&discovery_scope_id=directly_downloadable&discovery_scope_id=build_of_openjdk&match=any';
+      let   json     = await makeRequest("GET", url);
+      const response = JSON.parse(json);
+      const pkgs     = response.result;
+      return pkgs;  
     }
     
     
