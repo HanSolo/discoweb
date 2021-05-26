@@ -113,7 +113,7 @@
 		<div class="vbox">
 			<div class="hbox" style="padding:3px;">
 				<label id="javafxBundledLabel" class="label">JavaFX bundled</label>
-                <input id="javafxBundledCheckBox" type="checkbox" onchange="selectJavaFxBundled()">
+        <input id="javafxBundledCheckBox" type="checkbox" onchange="selectJavaFxBundled()">
 			</div>
 			<div class="hbox" style="padding:3px;">
 				<label id="majorVersionLabel" class="label">Major version:</label>
@@ -409,10 +409,11 @@
         archiveTypes.push(selectedPkgs[i].archive_type);
       }
       operatingSystems = operatingSystems.filter(uniqueOnly);
-      architectures    = architectures.filter(uniqueOnly);
-      libcTypes        = libcTypes.filter(uniqueOnly);
-      archiveTypes     = archiveTypes.filter(uniqueOnly);
-      
+      operatingSystems.sort((a, b) => a.localeCompare(b));
+      architectures = architectures.filter(uniqueOnly);
+      libcTypes     = libcTypes.filter(uniqueOnly);
+      archiveTypes  = archiveTypes.filter(uniqueOnly);
+
       removeDropdownEntries(operatingSystemDropDown)
       for (let i = 0 ; i < operatingSystems.length ; i++) {
         option       = document.createElement('option');
@@ -460,6 +461,7 @@
         libcTypes.push(selection[i].lib_c_type);
       }
       libcTypes= libcTypes.filter(uniqueOnly);
+      libcTypes.sort((a, b) => a.localeCompare(b));
       
       let libcTypeDropDown = document.getElementById('libcTypeDropDown');
       removeDropdownEntries(libcTypeDropDown);
@@ -516,6 +518,7 @@
         architectures.push(selection[i].architecture);
       }
       architectures= architectures.filter(uniqueOnly);
+      architectures.sort((a, b) => a.localeCompare(b));
       
       let architectureDropDown = document.getElementById('architectureDropDown');
       removeDropdownEntries(architectureDropDown);
@@ -576,6 +579,7 @@
         archiveTypes.push(selection[i].archive_type);
       }
       archiveTypes= archiveTypes.filter(uniqueOnly);
+      archiveTypes.sort((a, b) => a.localeCompare(b));
       
       let archiveTypeDropDown = document.getElementById('archiveTypeDropDown');
       removeDropdownEntries(archiveTypeDropDown);
