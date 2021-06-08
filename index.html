@@ -160,7 +160,6 @@
     var   selectedPkgs                = [];
     var   selectedPkg                 = null;
     var   selectedPkgsForMajorVersion = [];
-    var   downloadUri                 = null;
     var   javafxBundled;
     var   selectedMajorVersion;
     var   selectedVersionNumber;
@@ -650,7 +649,6 @@
         downloadButton.disabled = false;
       } else {
         selectedPkg = null;
-        downloadUri = null;
         let filenameLabel = document.getElementById('filenameLabel');
         filenameLabel.innerHTML = '-';
         let downloadButton = document.getElementById('downloadButton');
@@ -660,19 +658,20 @@
     
     function download() {
       if (selectedPkg == null || selectedPkg == undefined) { return; }
-      let promise = getDownloadLink(selectedPkg.id, selectedPkg.directly_downloadable);
-        promise.then(function(uri) {
-          downloadUri = uri;
-        }, function() { 
+      getDownloadLink(selectedPkg.id, selectedPkg.directly_downloadable).then(
+        function(uri) {
+          // Success
+          if (uri == null || uri == undefined) { return; }
+          window.open(uri);
+        }, 
+        function() {
+          // Failure
           console.log("Error")
           selectedPkg = null;
-          downloadUri = null;
           let filenameLabel = document.getElementById('filenameLabel');
           filenameLabel.innerHTML = '-';
-        });
-
-      if (downloadUri == null || downloadUri == undefined) { return; }
-      window.open(downloadUri);
+        }
+      );
     }
     
     async function getMaintainedMajorVersions() {
