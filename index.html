@@ -156,6 +156,7 @@
     const baseUrl = 'https://api.foojay.io';
     const scope   = 'discovery_scope_id=public&discovery_scope_id=build_of_openjdk';
     
+    var   distributions               = [];
     var   majorVersions               = [];
     var   selectedPkgs                = [];
     var   selectedPkg                 = null;
@@ -174,9 +175,18 @@
   
     // ******************** Methods **********************************************
     async function init() {
-      let   json     = await getMaintainedMajorVersions();
-      const response = JSON.parse(json);
-      const data     = response.result;
+      // Distributions
+			let json     = await getDistributions();
+			let response = JSON.parse(json);
+			let data     = response.result;
+			for (let i = 0 ; i < data.length ; i++) {
+				distributions.push(data[i]);
+			}
+
+			// MajorVersions
+			json     = await getMaintainedMajorVersions();
+			response = JSON.parse(json);
+			data     = response.result;
 
       for (let i = 0 ; i < data.length ; i++) {
         majorVersions.push(data[i]);
@@ -674,6 +684,12 @@
       );
     }
     
+    async function getDistributions() {
+    	let   url     = baseUrl + '/disco/v2.0/distributions?' + scope;
+      let   distros = await makeRequest("GET", url);
+      return distros;      
+    }
+    
     async function getMaintainedMajorVersions() {
       const url            = baseUrl + '/disco/v2.0/major_versions?ea=true&ga=true&maintained=true&include_build=true';
       let   major_versions = await makeRequest("GET", url);
@@ -782,165 +798,14 @@
     }
     
     function getDistributionFromText(text) {
-      if (null == text || text === undefined) { return ''; }
-      switch (text) {
-        case "zulu_prime":
-        case "ZULU_PRIME":
-        case "ZuluPrime":
-        case "zuluprime":
-        case "ZULUPRIME":
-          return 'zulu_prime';
-        case "zulu":
-        case "ZULU":
-        case "Zulu":
-        case "zulu_core":
-        case "ZULU_CORE":
-        case "Zulu_Core":
-        case "zulucore":
-        case "ZULUCORE":
-        case "ZuluCore":
-          return 'zulu';
-        case "aoj":
-        case "AOJ":
-          return 'aoj';
-        case "aoj_openj9":
-        case "AOJ_OpenJ9":
-        case "AOJ_OPENJ9":
-        case "AOJ OpenJ9":
-        case "AOJ OPENJ9":
-        case "aoj openj9":
-          return 'aoj_openj9';
-        case "corretto":
-        case "CORRETTO":
-        case "Corretto":
-          return 'corretto';
-        case "dragonwell":
-        case "DRAGONWELL":
-        case "Dragonwell":
-          return 'dragonwell';
-        case "graalvm_ce8":
-        case "graalvmce8":
-        case "GraalVM CE 8":
-        case "GraalVMCE8":
-        case "GraalVM_CE8":
-        return 'graalvm_ce8';
-        case "graalvm_ce11":
-        case "graalvmce11":
-        case "GraalVM CE 11":
-        case "GraalVMCE11":
-        case "GraalVM_CE11":
-          return 'graalvm_ce11';
-        case "graalvm_ce16":
-        case "graalvmce16":
-        case "GraalVM CE 16":
-        case "GraalVMCE16":
-        case "GraalVM_CE16":
-          return 'graalvm_ce16';
-        case "jetbrains":
-        case "JetBrains":
-        case "JETBRAINS":
-          return 'jetbrains';
-        case "liberica":
-        case "LIBERICA":
-        case "Liberica":
-          return 'liberica';
-        case "liberica_native":
-        case "LIBERICA_NATIVE":
-        case "libericaNative":
-        case "LibericaNative":
-        case "liberica native":
-        case "LIBERICA NATIVE":
-        case "Liberica Native":
-          return 'liberica_native';
-        case "mandrel":
-        case "MANDREL":
-        case "Mandrel":
-          return 'mandrel';
-        case "microsoft":
-        case "Microsoft":
-        case "MICROSOFT":
-        case "Microsoft OpenJDK":
-        case "Microsoft Build of OpenJDK":
-          return 'microsoft';
-        case "ojdk_build":
-        case "OJDK_BUILD":
-        case "OJDK Build":
-        case "ojdk build":
-        case "ojdkbuild":
-        case "OJDKBuild":
-          return 'ojdk_build';
-        case "openlogic":
-        case "OPENLOGIC":
-        case "OpenLogic":
-        case "open_logic":
-        case "OPEN_LOGIC":
-        case "Open Logic":
-        case "OPEN LOGIC":
-        case "open logic":
-          return 'openlogic';
-        case "oracle":
-        case "Oracle":
-        case "ORACLE":
-          return 'oracle';
-        case "oracle_open_jdk":
-        case "ORACLE_OPEN_JDK":
-        case "oracle_openjdk":
-        case "ORACLE_OPENJDK":
-        case "Oracle_OpenJDK":
-        case "Oracle OpenJDK":
-        case "oracle openjdk":
-        case "ORACLE OPENJDK":
-        case "open_jdk":
-        case "openjdk":
-        case "OpenJDK":
-        case "Open JDK":
-        case "OPEN_JDK":
-        case "open-jdk":
-        case "OPEN-JDK":
-        case "Oracle-OpenJDK":
-        case "oracle-openjdk":
-        case "ORACLE-OPENJDK":
-        case "oracle-open-jdk":
-        case "ORACLE-OPEN-JDK":
-          return 'oracle_open_jdk';
-        case "RedHat":
-        case "redhat":
-        case "REDHAT":
-        case "Red Hat":
-        case "red hat":
-        case "RED HAT":
-        case "Red_Hat":
-        case "red_hat":
-        case "red-hat":
-        case "Red-Hat":
-        case "RED-HAT":
-          return 'redhat';
-        case "sap_machine":
-        case "sapmachine":
-        case "SAPMACHINE":
-        case "SAP_MACHINE":
-        case "SAPMachine":
-        case "SAP Machine":
-        case "sap-machine":
-        case "SAP-Machine":
-        case "SAP-MACHINE":
-          return 'sap_machine';
-        case "temurin":
-        case "Temurin":
-        case "TEMURIN":
-          return 'temurin';
-        case "trava":
-        case "TRAVA":
-        case "Trava":
-        case "trava_openjdk":
-        case "TRAVA_OPENJDK":
-        case "trava openjdk":
-        case "TRAVA OPENJDK":
-          return 'trava';
-        default:
-          return '';
-      }
-    }
+			if (null == text || text === undefined) { return ''; }
+			for (let i = 0 ; i < distributions.length ; i++) {
+				if (distributions[i].synonyms.includes(text)) { 
+					return distributions[i].api_parameter; 
+				}
+			}
+			return '';
+		}
   </script>
 </body>
 </html>
