@@ -763,7 +763,7 @@
       return new Promise(function (resolve, reject) {
         let request = new XMLHttpRequest();
         request.open(method, url); 
-        request.setRequestHeader('Disco-User-Info', 'DiscoWeb');
+        request.setRequestHeader('Disco-User-Info', 'DiscoWeb (HTMLTemplate)');
         request.onload = function () {
           if (this.status >= 200 && this.status < 300) {
             resolve(request.response);
