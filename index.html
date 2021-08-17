@@ -78,12 +78,12 @@
 
 			/*Align children vetically*/
 			-webkit-flex-direction: column;
-			-ms-flex-direction: column;
-			flex-direction: column;
+			-ms-flex-direction    : column;
+			flex-direction        : column;
 
 			-webkit-align-content: flex-start;
-			-ms-flex-line-pack: start;
-			align-content: flex-start;
+			-ms-flex-line-pack   : start;
+			align-content        : flex-start;
 	}
 
 	.hbox {
@@ -93,18 +93,18 @@
 
 			/*Align children horizontally*/
 			-webkit-flex-direction: row;
-			-ms-flex-direction: row;
-			flex-direction: row;
+			-ms-flex-direction    : row;
+			flex-direction        : row;
 
 			-webkit-align-content: flex-start;
-			-ms-flex-line-pack: start;
-			align-content: flex-start;
+			-ms-flex-line-pack   : start;
+			align-content        : flex-start;
 	}
 
 	.flex {
 			-webkit-flex: 1;
-			-ms-flex: 1;
-			flex: 1;
+			-ms-flex    : 1;
+			flex        : 1;
 	}
 	</style>
 </head>
@@ -267,20 +267,20 @@
       selectedMajorVersion = majorVersions[majorVersionDropDown.selectedIndex];
       
       if (javafxBundled) {
-				getPkgsWithFxForMajorVersion(selectedMajorVersion).then(
-					function(pkgs) {
-						// Success
-						selectedPkgsForMajorVersion = pkgs;
-						javafxBundledCheckBox.disabled = false;
-						selectVersionNumber();
-					}, 
-					function() {
-						// Failure
-						console.log("Error");
-						selectedPkgsForMajorVersion = [];
-						javafxBundledCheckBox.disabled = false;
-					}
-				);
+        getPkgsWithFxForMajorVersion(selectedMajorVersion).then(
+		  function(pkgs) {
+            // Success
+            selectedPkgsForMajorVersion = pkgs;
+            javafxBundledCheckBox.disabled = false;
+            selectVersionNumber();
+          }, 
+          function() {
+            // Failure
+            console.log("Error");
+            selectedPkgsForMajorVersion = [];
+            javafxBundledCheckBox.disabled = false;
+          }
+        );
       }
 
       let versions = selectedMajorVersion.versions;
@@ -705,7 +705,7 @@
     async function getPkgsWithFxForMajorVersion(majorVersion) {
       let major_version = majorVersion.major_version;
       let include_build = majorVersion.early_access_only;
-      const url      = baseUrl + '/disco/v2.0/packages?distro=zulu&distro=liberica&distro=corretto&version=' + major_version + '..%3C' + (major_version + 1) + '&release_status=' + (include_build ? 'ea' : 'ga') + '&directly_downloadable=true&discovery_socpe_id=public&discovery_scope_id=directly_downloadable&discovery_scope_id=build_of_openjdk&match=any';      
+      const url      = baseUrl + '/disco/v2.0/packages?distro=zulu&distro=liberica&distro=corretto&version=' + major_version + '..%3C' + (major_version + 1) + '&release_status=' + (include_build ? 'ea' : 'ga') + '&directly_downloadable=true&discovery_socpe_id=public&discovery_scope_id=directly_downloadable&discovery_scope_id=build_of_openjdk&match=any';
       let   json     = await makeRequest("GET", url);
       const response = JSON.parse(json);
       const pkgs     = response.result;
@@ -762,7 +762,7 @@
     function makeRequest(method, url) {
       return new Promise(function (resolve, reject) {
         let request = new XMLHttpRequest();
-        request.open(method, url); 
+        request.open(method, url);
         request.setRequestHeader('Disco-User-Info', 'DiscoWeb (HTMLTemplate)');
         request.onload = function () {
           if (this.status >= 200 && this.status < 300) {
