@@ -142,7 +142,7 @@
         <label id="filenameLabel" class="filename-label">-</label>
       </div>
       <div>
-        <button id="downloadButton" type="button" class="button" onclick="download()" disabled="true">Download</button>
+        <button id="downloadButton" type="button" class="button" onclick="download()" disabled>Download</button>
       </div>
     </div>
   </div>
@@ -177,7 +177,7 @@
       for (let i = 0 ; i < data.length ; i++) {
         distributions.push(data[i]);
       }
-    
+
     	// MajorVersions
       json     = await getMaintainedMajorVersions();
       response = JSON.parse(json);
@@ -257,27 +257,26 @@
       selectVersionNumber();
     }
     
-    
     async function selectMajorVersion() {
       let majorVersionDropDown = document.getElementById('majorVersionDropDown');
       selectedMajorVersion = majorVersions[majorVersionDropDown.selectedIndex];
-      let javafxBundledCheckBox = document.getElementById('javafxBundledCheckBox');
-      javafxBundledCheckBox.disabled = true;
       
-      getPkgsWithFxForMajorVersion(selectedMajorVersion).then(
-        function(pkgs) {
-          // Success
-          selectedPkgsForMajorVersion = pkgs;
-          javafxBundledCheckBox.disabled = false;
-          selectVersionNumber();
-        }, 
-        function() {
-          // Failure
-          console.log("error");
-          selectedPkgsForMajorVersion = [];
-          javafxBundledCheckBox.disabled = false;
-        }
-      );
+      if (javafxBundled) {
+        getPkgsWithFxForMajorVersion(selectedMajorVersion).then(
+		  function(pkgs) {
+            // Success
+            selectedPkgsForMajorVersion = pkgs;
+            javafxBundledCheckBox.disabled = false;
+            selectVersionNumber();
+          }, 
+          function() {
+            // Failure
+            console.log("Error");
+            selectedPkgsForMajorVersion = [];
+            javafxBundledCheckBox.disabled = false;
+          }
+        );
+      }
 
       let versions = selectedMajorVersion.versions;
       if (!selectedMajorVersion.early_access_only) {
@@ -341,7 +340,7 @@
         }
         distrosForSelection = distrosForSelection.filter(uniqueOnly);
       } else {
-        let   url      = baseUrl + '/disco/v2.0/distributions/versions/' + selectedVersionNumber + '?' + scope;
+        let   url      = baseUrl + '/disco/v2.0/distributions/versions/' + encodeURIComponent(selectedVersionNumber) + '?' + scope;
         let   json     = await getPackages(url);
         const response = JSON.parse(json);
         const data     = response.result;
@@ -396,7 +395,7 @@
       let distributionDropDown = document.getElementById('distributionDropDown');
       selectedDistribution = distributionDropDown.value;
       
-      let   url      = baseUrl + '/disco/v2.0/packages' + '?version=' + selectedVersionNumber + '&distro=' + selectedDistribution + '&package_type=jdk&release_status=ga&release_status=ea&' + scope;
+      let   url      = baseUrl + '/disco/v2.0/packages' + '?version=' + encodeURIComponent(selectedVersionNumber) + '&distro=' + selectedDistribution + '&package_type=jdk&release_status=ga&release_status=ea&' + scope;
       let   json     = await getPackages(url);
       const response = JSON.parse(json);
       const data     = response.result;
@@ -417,7 +416,7 @@
       architectures    = architectures.filter(uniqueOnly);
       libcTypes        = libcTypes.filter(uniqueOnly);
       archiveTypes     = archiveTypes.filter(uniqueOnly);
-      
+
       removeDropdownEntries(operatingSystemDropDown)
       for (let i = 0 ; i < operatingSystems.length ; i++) {
         option       = document.createElement('option');
@@ -464,7 +463,7 @@
       for (let i = 0 ; i < selection.length ; i++) {
         libcTypes.push(selection[i].lib_c_type);
       }
-      libcTypes= libcTypes.filter(uniqueOnly);
+      libcTypes = libcTypes.filter(uniqueOnly);
       
       let libcTypeDropDown = document.getElementById('libcTypeDropDown');
       removeDropdownEntries(libcTypeDropDown);
@@ -520,7 +519,7 @@
       for (let i = 0 ; i < selection.length ; i++) {
         architectures.push(selection[i].architecture);
       }
-      architectures= architectures.filter(uniqueOnly);
+      architectures = architectures.filter(uniqueOnly);
       
       let architectureDropDown = document.getElementById('architectureDropDown');
       removeDropdownEntries(architectureDropDown);
@@ -580,7 +579,7 @@
       for (let i = 0 ; i < selection.length ; i++) {
         archiveTypes.push(selection[i].archive_type);
       }
-      archiveTypes= archiveTypes.filter(uniqueOnly);
+      archiveTypes = archiveTypes.filter(uniqueOnly);
       
       let archiveTypeDropDown = document.getElementById('archiveTypeDropDown');
       removeDropdownEntries(archiveTypeDropDown);
