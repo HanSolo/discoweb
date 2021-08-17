@@ -265,23 +265,23 @@
     async function selectMajorVersion() {
       let majorVersionDropDown = document.getElementById('majorVersionDropDown');
       selectedMajorVersion = majorVersions[majorVersionDropDown.selectedIndex];
-      let javafxBundledCheckBox = document.getElementById('javafxBundledCheckBox');
-      javafxBundledCheckBox.disabled = true;
       
-      getPkgsWithFxForMajorVersion(selectedMajorVersion).then(
-        function(pkgs) {
-          // Success
-          selectedPkgsForMajorVersion = pkgs;
-          javafxBundledCheckBox.disabled = false;
-          selectVersionNumber();
-        }, 
-        function() {
-          // Failure
-          console.log("error");
-          selectedPkgsForMajorVersion = [];
-          javafxBundledCheckBox.disabled = false;
-        }
-      );
+      if (javafxBundled) {
+				getPkgsWithFxForMajorVersion(selectedMajorVersion).then(
+					function(pkgs) {
+						// Success
+						selectedPkgsForMajorVersion = pkgs;
+						javafxBundledCheckBox.disabled = false;
+						selectVersionNumber();
+					}, 
+					function() {
+						// Failure
+						console.log("Error");
+						selectedPkgsForMajorVersion = [];
+						javafxBundledCheckBox.disabled = false;
+					}
+				);
+      }
 
       let versions = selectedMajorVersion.versions;
       if (!selectedMajorVersion.early_access_only) {
@@ -345,7 +345,7 @@
         }
         distrosForSelection = distrosForSelection.filter(uniqueOnly);
       } else {
-        let   url      = baseUrl + '/disco/v2.0/distributions/versions/' + selectedVersionNumber + '?' + scope;
+        let   url      = baseUrl + '/disco/v2.0/distributions/versions/' + encodeURIComponent(selectedVersionNumber) + '?' + scope;
         let   json     = await getPackages(url);
         const response = JSON.parse(json);
         const data     = response.result;
@@ -400,7 +400,7 @@
       let distributionDropDown = document.getElementById('distributionDropDown');
       selectedDistribution = distributionDropDown.value;
       
-      let   url      = baseUrl + '/disco/v2.0/packages' + '?version=' + selectedVersionNumber + '&distro=' + selectedDistribution + '&package_type=jdk&release_status=ga&release_status=ea&' + scope;
+      let   url      = baseUrl + '/disco/v2.0/packages' + '?version=' + encodeURIComponent(selectedVersionNumber) + '&distro=' + selectedDistribution + '&package_type=jdk&release_status=ga&release_status=ea&' + scope;
       let   json     = await getPackages(url);
       const response = JSON.parse(json);
       const data     = response.result;
@@ -705,7 +705,7 @@
     async function getPkgsWithFxForMajorVersion(majorVersion) {
       let major_version = majorVersion.major_version;
       let include_build = majorVersion.early_access_only;
-      const url      = baseUrl + '/disco/v2.0/packages?distro=zulu&distro=liberica&distro=corretto&version=' + major_version + '..%3C' + (major_version + 1) + '&release_status=' + (include_build ? 'ea' : 'ga') + '&directly_downloadable=true&discovery_socpe_id=public&discovery_scope_id=directly_downloadable&discovery_scope_id=build_of_openjdk&match=any';
+      const url      = baseUrl + '/disco/v2.0/packages?distro=zulu&distro=liberica&distro=corretto&version=' + major_version + '..%3C' + (major_version + 1) + '&release_status=' + (include_build ? 'ea' : 'ga') + '&directly_downloadable=true&discovery_socpe_id=public&discovery_scope_id=directly_downloadable&discovery_scope_id=build_of_openjdk&match=any';      
       let   json     = await makeRequest("GET", url);
       const response = JSON.parse(json);
       const pkgs     = response.result;
